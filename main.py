@@ -428,10 +428,10 @@ elif numero == 11:
     moteur_G = Motor(Port.A)
     moteur_D = Motor(Port.C)
 
-    # Base de pilotage
+    # Base de pilotage (DriveBase pour mouvements continus)
     robot = DriveBase(moteur_G, moteur_D, wheel_diameter=55.5, axle_track=104)
 
-    # Affichage IP
+    # Affichage IP (en dur)
     try:
         ip = "192.168.1.101"
         print("IP EV3 :", ip)
@@ -457,18 +457,27 @@ elif numero == 11:
 
             premiere_ligne = requete.split("\r\n")[0]
 
-            # --- Commandes du robot ---
+            # --- Commandes du robot (pilotage continu) ---
+
+            # Avancer tant qu'on n'envoie pas une autre commande
             if premiere_ligne.startswith("GET /avancer"):
-                robot.straight(200)
+                robot.drive(500, 0)
+
+            # Reculer en continu
             elif premiere_ligne.startswith("GET /reculer"):
-                robot.straight(-200)
+                robot.drive(-500, 0)
+
+            # Tourner à gauche sur place
             elif premiere_ligne.startswith("GET /gauche"):
-                robot.turn(-90)
+                robot.drive(0, -120)
+
+            # Tourner à droite sur place
             elif premiere_ligne.startswith("GET /droite"):
-                robot.turn(90)
+                robot.drive(0, 120)
+
+            # Stop complet
             elif premiere_ligne.startswith("GET /stop"):
-                moteur_G.stop()
-                moteur_D.stop()
+                robot.stop()
 
             # --- Lecture capteurs ---
             valeurs = {
@@ -485,7 +494,8 @@ elif numero == 11:
             reponse = "HTTP/1.1 200 OK\r\n"
             reponse += "Content-Type: application/json\r\n"
             reponse += "Connection: close\r\n"
-            reponse += "Content-Length: " + str(len(json_valeurs)) + "\r\n\r\n"
+            reponse += "Content-Length: " + str(len(json_valeurs)) + "\r\n"
+            reponse += "\r\n"
             reponse += json_valeurs
 
             socket_client.send(reponse.encode())

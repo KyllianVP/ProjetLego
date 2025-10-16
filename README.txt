@@ -43,3 +43,23 @@ premiere_ligne = requete.split("\r\n")[0]
 
 
 Date : 16 Octobre 2025 // Kyllian
+
+---------------------------------------------------------------------------------
+Tache réalisée : 
+Commence une nouvelle commande avec elif numéro == 11
+Les requetes permettent au robot d'ava,cer indéfiniment tant qu'on ne lui envoie pas d'autre requete
+remplacement de robot.straight(200) => robot.drive(500, 0)
+
+
+if premiere_ligne.startswith("GET /avancer"):
+    robot.drive(500, 0)
+elif premiere_ligne.startswith("GET /reculer"):
+    robot.drive(-500, 0)
+elif premiere_ligne.startswith("GET /gauche"):
+    robot.drive(0, -120)
+elif premiere_ligne.startswith("GET /droite"):
+    robot.drive(0, 120)
+elif premiere_ligne.startswith("GET /stop"):
+    robot.stop()
+
+Date : 10 Novembre 2025 // Kyllian
