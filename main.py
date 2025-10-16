@@ -486,6 +486,12 @@ elif numero == 11:
             # Baisser le bras
             elif premiere_ligne.startswith("GET /baisser"):
                 bras.run_angle(800, -90)
+            # Allumer les leds en rouge
+            elif premiere_ligne.startswith("GET /led_on"):
+                ev3.light.on(Color.RED)
+            # Éteindre les leds
+            elif premiere_ligne.startswith("GET /led_off"):
+                ev3.light.off()
 
             # --- Lecture capteurs ---
             valeurs = {
