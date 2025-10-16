@@ -21,3 +21,25 @@ angle_moteur_G "angle_moteur Gauche"
 Date : 15 Octobre 2025 // Kyllian
 
 ---------------------------------------------------------------------------------
+
+Tache réalisée : 
+Commence une nouvelle commande avec elif numéro == 11
+Requete GET pour avancer, reculer, allez à droite, allez à gauche
+
+premiere_ligne = requete.split("\r\n")[0]
+
+
+        if premiere_ligne.startswith("GET /avancer"):
+            robot.straight(200)
+        elif premiere_ligne.startswith("GET /reculer"):
+            robot.straight(-200)
+        elif premiere_ligne.startswith("GET /gauche"):
+            robot.turn(-90)
+        elif premiere_ligne.startswith("GET /droite"):
+            robot.turn(90)
+        elif premiere_ligne.startswith("GET /stop"):
+            moteur_G.stop()
+            moteur_D.stop()
+
+
+Date : 16 Octobre 2025 // Kyllian

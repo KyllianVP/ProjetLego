@@ -421,23 +421,26 @@ elif numero == 11:
             socket_client.close()
 elif numero == 11:
 
-    # --- Capteurs et moteurs (lecture uniquement) ---
+    # --- Capteurs et moteurs ---
     us = UltrasonicSensor(Port.S2)
     bobarium_sensor = ColorSensor(Port.S3)
     gyroscope = GyroSensor(Port.S4)
     moteur_G = Motor(Port.A)
     moteur_D = Motor(Port.C)
 
-    # --- Affichage IP en dur (à adapter si besoin) ---
+    # Base de pilotage
+    robot = DriveBase(moteur_G, moteur_D, wheel_diameter=55.5, axle_track=104)
+
+    # Affichage IP
     try:
         ip = "192.168.1.101"
         print("IP EV3 :", ip)
         ev3.screen.clear()
         ev3.screen.draw_text(0, 0, "IP: " + ip)
-    except Exception as _:
+    except Exception:
         pass
 
-    # --- Serveur HTTP très simple ---
+    # Serveur HTTP
     socket_serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket_serveur.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     socket_serveur.bind(("0.0.0.0", 1664))
@@ -445,16 +448,29 @@ elif numero == 11:
     print("Serveur en écoute sur le port 1664...")
 
     while True:
-        # Attente d'un client
         socket_client, adresse = socket_serveur.accept()
         try:
-            # On lit la requête, mais on ne l’utilise pas encore
             requete = socket_client.recv(512).decode()
             if not requete:
                 socket_client.close()
                 continue
 
-            # Lecture des capteurs
+            premiere_ligne = requete.split("\r\n")[0]
+
+            # --- Commandes du robot ---
+            if premiere_ligne.startswith("GET /avancer"):
+                robot.straight(200)
+            elif premiere_ligne.startswith("GET /reculer"):
+                robot.straight(-200)
+            elif premiere_ligne.startswith("GET /gauche"):
+                robot.turn(-90)
+            elif premiere_ligne.startswith("GET /droite"):
+                robot.turn(90)
+            elif premiere_ligne.startswith("GET /stop"):
+                moteur_G.stop()
+                moteur_D.stop()
+
+            # --- Lecture capteurs ---
             valeurs = {
                 "bobarium": bobarium_sensor.reflection(),
                 "distance": us.distance(),
@@ -465,23 +481,23 @@ elif numero == 11:
 
             json_valeurs = json.dumps(valeurs)
 
-            # Réponse HTTP avec le JSON
+            # --- Réponse HTTP JSON ---
             reponse = "HTTP/1.1 200 OK\r\n"
             reponse += "Content-Type: application/json\r\n"
             reponse += "Connection: close\r\n"
-            reponse += "Content-Length: " + str(len(json_valeurs)) + "\r\n"
-            reponse += "\r\n"
+            reponse += "Content-Length: " + str(len(json_valeurs)) + "\r\n\r\n"
             reponse += json_valeurs
 
             socket_client.send(reponse.encode())
 
         except Exception as e:
             try:
-                err = ("HTTP/1.1 500 Internal Server Error\r\n"
-                       "Connection: close\r\n\r\n" + str(e))
+                err = (
+                    "HTTP/1.1 500 Internal Server Error\r\n"
+                    "Connection: close\r\n\r\n" + str(e)
+                )
                 socket_client.send(err.encode())
             except:
                 pass
         finally:
             socket_client.close()
-
