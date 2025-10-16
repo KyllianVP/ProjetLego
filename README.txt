@@ -103,4 +103,20 @@ elif premiere_ligne.startswith("GET /led_off"):
 Date : 10 Novembre 2025 // Kyllian
 
 
+---------------------------------------------------------------------------------
+Tache réalisée : 
+Commence une nouvelle commande avec elif numéro == 11
+Commande sur la partie CSV
+
+
+Création d’un fichier CSV unique par mission, avec un nom basé sur la date et l’heure :
+Création de la fonction read_sensors() pour centraliser la lecture des valeurs
+Enregistrement automatique dans le CSV avec chaque requête, si log_active est à True, les valeurs sont enregistrées :
+Commande HTTP pour controler le CSV
+Téléchargement du fichier CSV avec l'ajout d’une route pour récupérer le CSV depuis un client HTTP :
+
+Date : 10 Novembre 2025 // Kyllian
+
+
+
 

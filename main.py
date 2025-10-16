@@ -429,8 +429,33 @@ elif numero == 11:
     moteur_D = Motor(Port.C)
     bras = Motor(Port.B)
 
+    
+    # Partie CSV (journal capteurs)
+    mission_name = "Mission1" # Nom de préfixe du fichier
+    date_str = time.strftime("%Y%m%d_%H%M%S") # Date et heure pour nom unique
+    file_name = mission_name + "_" + date_str # Nom complet du fichier
+
+    # Journal CSV avec DataLog 6 colonnes
+    # temps, bobarium, distance, gyro, moteur_G, moteur_D
+    # timestamp=False pour une gestion du temps personnalisée
+    log = DataLog('temps', 'bobarium', 'distance', 'gyro', 'moteur_G', 'moteur_D',
+                  name=file_name, timestamp=False)
+    chrono = StopWatch() # Chronomètre pour le temps de la mission
+    log_active = True # Flag enregistrement actif/inactif
+
     # Base de pilotage (DriveBase pour mouvements continus)
     robot = DriveBase(moteur_G, moteur_D, wheel_diameter=55.5, axle_track=104)
+
+    def read_sensors():
+        return {
+            "temps": chrono.time() / 1000,            # temps en secondes
+            "bobarium": bobarium_sensor.reflection(), # capteur de couleur
+            "distance": us.distance(),                # ultrason (mm)
+            "angle_gyro": gyroscope.angle(),          # gyroscope (°)
+            "angle_moteur_G": moteur_G.angle(),       # moteur gauche (°)
+            "angle_moteur_D": moteur_D.angle()        # moteur droit (°)
+    }
+
 
     # Affichage IP (en dur)
     try:
@@ -492,6 +517,54 @@ elif numero == 11:
             # Éteindre les leds
             elif premiere_ligne.startswith("GET /led_off"):
                 ev3.light.off()
+            # Démarrer l'enregistrement CSV
+            elif premiere_ligne.startswith("GET /csv_start"):
+                log_active = True
+                chrono.reset()
+            # Arrêter l'enregistrement CSV
+            elif premiere_ligne.startswith("GET /csv_stop"):
+                log_active = False
+                
+            # Télécharger le fichier CSV
+            elif premiere_ligne.startswith("GET /download_csv"):
+                try:
+                    # Ouverture et lecture du fichier CSV par DataLog
+                    with open("/home/robot/Projet_LEGO/" + file_name + ".csv", "r") as f:
+                        contenu = f.read()
+
+                    # Réponse HTTP avec le fichier CSV avec les bons en-têtes
+                    reponse = (
+                        "HTTP/1.1 200 OK\r\n"
+                        "Content-Type: text/csv\r\n"
+                        "Content-Disposition: attachment; filename=\"" + file_name + ".csv\"\r\n"
+                        "Connection: close\r\n\r\n"
+                        + contenu
+                    )
+                except Exception as e:
+                    # En cas d'erreur (fichier non trouvé, etc.)
+                    reponse = (
+                        "HTTP/1.1 404 Not found\r\n"
+                        "Connection: close\r\n\r\n" + str(e)
+                    )
+                socket_client.send(reponse.encode())
+                socket_client.close()
+                # On passe au client suivant
+                continue
+                        
+                    
+
+             
+
+            # Lecture capteurs sans bouger
+            elif premiere_ligne.startswith("GET /sensors") or premiere_ligne.startswith("GET /"):
+                # On ne change rien, on lit juste les capteurs
+                pass
+            else:
+                # si la route n'est pas reconnue
+                rep = "HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n"
+                socket_client.send(rep.encode())
+                socket_client.close()
+                continue
 
             # --- Lecture capteurs ---
             valeurs = {
@@ -501,8 +574,23 @@ elif numero == 11:
                 "angle_moteur_G": moteur_G.angle(),
                 "angle_moteur_D": moteur_D.angle()
             }
-
+            valeurs = read_sensors()
             json_valeurs = json.dumps(valeurs)
+
+            #--- Journal CSV ---#
+                # Journal CSV avec DataLog
+            if log_active:
+                log.log(
+                    valeurs["temps"],           # temps en secondes (ou chrono.time() si tu veux en ms)
+                    valeurs["bobarium"],
+                    valeurs["distance"],
+                    valeurs["angle_gyro"],
+                    valeurs["angle_moteur_G"],
+                    valeurs["angle_moteur_D"]
+                )
+
+
+            
 
             # --- Réponse HTTP JSON ---
             reponse = "HTTP/1.1 200 OK\r\n"
