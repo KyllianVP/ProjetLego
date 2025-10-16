@@ -427,6 +427,7 @@ elif numero == 11:
     gyroscope = GyroSensor(Port.S4)
     moteur_G = Motor(Port.A)
     moteur_D = Motor(Port.C)
+    bras = Motor(Port.B)
 
     # Base de pilotage (DriveBase pour mouvements continus)
     robot = DriveBase(moteur_G, moteur_D, wheel_diameter=55.5, axle_track=104)
@@ -478,6 +479,13 @@ elif numero == 11:
             # Stop complet
             elif premiere_ligne.startswith("GET /stop"):
                 robot.stop()
+
+            # Lever le bras
+            elif premiere_ligne.startswith("GET /lever"):
+                bras.run_angle(800, 90)
+            # Baisser le bras
+            elif premiere_ligne.startswith("GET /baisser"):
+                bras.run_angle(800, -90)
 
             # --- Lecture capteurs ---
             valeurs = {

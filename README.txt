@@ -63,3 +63,22 @@ elif premiere_ligne.startswith("GET /stop"):
     robot.stop()
 
 Date : 10 Novembre 2025 // Kyllian
+---------------------------------------------------------------------------------
+Tache réalisée : 
+Commence une nouvelle commande avec elif numéro == 11
+initialisation du bras sur le port B
+
+
+if premiere_ligne.startswith("GET /avancer"):
+    robot.drive(500, 0) 
+    ......
+    
+# Lever le bras
+elif premiere_ligne.startswith("GET /lever"):
+    bras.run_angle(800, 90)
+# Baisser le bras
+elif premiere_ligne.startswith("GET /baisser"):
+  bras.run_angle(800, -90)
+
+Date : 10 Novembre 2025 // Kyllian
+
