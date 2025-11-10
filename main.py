@@ -340,7 +340,7 @@ elif numero == 11:
             elif premiere_ligne.startswith("GET /download_csv"):
                 try:
                     # Ouverture et lecture du fichier CSV par DataLog
-                    with open("/home/robot/Projet_LEGO/" + file_name + ".csv", "r") as f:
+                    with open(file_name + ".csv", "r") as f:
                         contenu = f.read()
 
                     # Réponse HTTP avec le fichier CSV avec les bons en-têtes

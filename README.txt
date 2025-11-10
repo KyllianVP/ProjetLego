@@ -127,7 +127,11 @@ Suppression d'une des deux fonction read_sensors()
 
 
 Date : 10 Novembre 2025 // Kyllian
+---------------------------------------------------------------------------------
+Tache réalisée : 
+Correction du download de la partie CSV
 
+Date : 10 Novembre 2025 // Kyllian
 
 
 
