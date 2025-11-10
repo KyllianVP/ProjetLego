@@ -117,6 +117,18 @@ Téléchargement du fichier CSV avec l'ajout d’une route pour récupérer le C
 
 Date : 10 Novembre 2025 // Kyllian
 
+---------------------------------------------------------------------------------
+Tache réalisée : 
+Commence une nouvelle commande avec elif numéro == 11
+Peaufinnage du code 
+
+Suppression d'une des deux fonction read_sensors()
++ Commentaire sur tout le code pour plus de compréhension
+
+
+Date : 10 Novembre 2025 // Kyllian
+
+
 
 
 
